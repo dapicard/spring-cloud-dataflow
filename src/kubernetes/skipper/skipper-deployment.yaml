@@ -34,6 +34,17 @@ spec:
           value: 'true'
         - name: SPRING_CLOUD_KUBERNETES_SECRETS_NAME
           value: mysql
+        - name: KAFKA_SERVICE_HOST
+          value: broker
+        - name: KAFKA_SERVICE_PORT
+          value: '9092'
+        - name: KAFKA_ZK_SERVICE_HOST
+          value: zookeeper
+        - name: KAFKA_ZK_SERVICE_PORT
+          value: '2181'
+        volumeMounts:
+          - name: repository
+            mountPath: /mnt/repository
       initContainers:
       - name: init-mysql-wait
         image: busybox
@@ -48,3 +59,7 @@ spec:
               key: mysql-root-password
         command: ['sh', '-c', 'mysql -h mysql -u root -e "CREATE DATABASE IF NOT EXISTS skipper;"']
       serviceAccountName: scdf-sa
+      volumes:
+        - name: repository
+          persistentVolumeClaim:
+              claimName: repository-pv-claim

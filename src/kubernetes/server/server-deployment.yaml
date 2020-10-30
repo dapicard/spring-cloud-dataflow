@@ -55,9 +55,20 @@ spec:
           value: 'http://${SKIPPER_SERVICE_HOST}:${SKIPPER_SERVICE_PORT}/api'
           # Add Maven repo for metadata artifact resolution for all stream apps
         - name: SPRING_APPLICATION_JSON
-          value: "{ \"maven\": { \"local-repository\": null, \"remote-repositories\": { \"repo1\": { \"url\": \"https://repo.spring.io/libs-snapshot\"} } } }"
+          value: "{ \"maven\": { \"local-repository\": null, \"remote-repositories\": { \"local\": {\"url\": \"file:///mnt/repository/\"}, \"repo1\": { \"url\": \"https://repo.spring.io/libs-snapshot\"} } } }"
+        - name: SPRINGCONFIG_SERVICE_HOST
+          value: spring-config
+        - name: SPRINGCONFIG_SERVICE_PORT
+          value: '8888'
+        volumeMounts:
+          - name: repository
+            mountPath: /mnt/repository
       initContainers:
       - name: init-mysql-wait
         image: busybox
         command: ['sh', '-c', 'until nc -w3 -z mysql 3306; do echo waiting for mysql; sleep 3; done;']
       serviceAccountName: scdf-sa
+      volumes:
+        - name: repository
+          persistentVolumeClaim:
+              claimName: repository-pv-claim

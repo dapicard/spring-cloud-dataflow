@@ -18,7 +18,7 @@ data:
         - role: pod
           namespaces:
             names:
-              - default
+              - kafka
       relabel_configs:
         - source_labels: [__meta_kubernetes_pod_label_app]
           action: keep
@@ -32,7 +32,7 @@ data:
         - role: pod
           namespaces:
             names:
-              - default
+              - kafka
       relabel_configs:
         - source_labels: [__meta_kubernetes_pod_label_app]
           action: keep
@@ -45,3 +45,31 @@ data:
         - source_labels: [__meta_kubernetes_pod_name]
           action: replace
           target_label: kubernetes_pod_name
+    - job_name: 'kafka-jmx'
+      metrics_path: '/'
+      kubernetes_sd_configs:
+        - role: pod
+          namespaces:
+            names:
+              - kafka
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_label_app]
+          action: keep
+          regex: kafka
+        - source_labels: [__meta_kubernetes_pod_container_port_number]
+          action: keep
+          regex: 5556
+    - job_name: 'kafka-minion'
+      metrics_path: '/metrics'
+      kubernetes_sd_configs:
+        - role: pod
+          namespaces:
+            names:
+              - kafka
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_label_app]
+          action: keep
+          regex: kafka-minion
+        - source_labels: [__meta_kubernetes_pod_container_port_number]
+          action: keep
+          regex: 8080

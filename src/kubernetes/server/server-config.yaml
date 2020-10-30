@@ -6,11 +6,19 @@ metadata:
     app: scdf-server
 data:
   application.yaml: |-
+    logging:
+      level:
+        org.springframework: INFO
+        org.springframework.cloud: DEBUG
     spring:
       cloud:
         dataflow:
           applicationProperties:
             stream:
+              spring:
+                cloud:
+                  config:
+                    uri: http://${SPRINGCONFIG_SERVICE_HOST}:${SPRINGCONFIG_SERVICE_PORT}
               management:
                 metrics:
                   export:
@@ -21,6 +29,10 @@ data:
                         host: prometheus-proxy
                         port: 7001
             task:
+              spring:
+                cloud:
+                  config:
+                    uri: ${SPRINGCONFIG_SERVICE_HOST}:${SPRINGCONFIG_SERVICE_PORT}
               management:
                 metrics:
                   export:
@@ -31,7 +43,7 @@ data:
                         host: prometheus-proxy
                         port: 7001
           grafana-info:
-            url: 'https://grafana:3000'
+            url: 'http://192.168.39.145:30117'
           task:
             platform:
               kubernetes:
@@ -39,6 +51,13 @@ data:
                   default:
                     limits:
                       memory: 1024Mi
+                    volumes: 
+                      - name: nas
+                        persistentVolumeClaim:
+                          claimName: nas-pv-claim
+                    volume-mounts:
+                      - name: nas
+                        mountPath: "/nas"
       datasource:
         url: jdbc:mysql://${MYSQL_SERVICE_HOST}:${MYSQL_SERVICE_PORT}/mysql
         username: root
